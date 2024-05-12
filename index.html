@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slider Example</title>
+<title>Ultimate Simulation</title>
 </head>
 <body>
 
-<input type="range" min="1" max="100" value="1" id="slider">
+<input type="range" min="1" max="15" value="1" id="score_max_slider">
+<input type="range" min="0" max="1" value="0.5" step="0.01"  id="score_max_slider">
 <input type="text" id="sliderValue">
 
 <script>
@@ -30,11 +31,11 @@ function sim() {
     // Turnover
     if (Math.random() > assumptions[state.offense][state.pullReceive ^ state.offense]) {
       // console.log("Turnover Offence:", state.offense);  // For debugging (uncomment if needed)
-      state.offense = (state.offense + 1) % 2;  // Toggle offense using modulo
+      state.offense = 1 - state.offense  ;  // Toggle offense using modulo
     } else {
       // Score
       state.score[state.offense] += 1;
-      state.pullReceive = (state.offense + 1) % 2;
+      state.pullReceive = 1 - state.offense;
       state.offense = state.pullReceive;
       // console.log("Score:", state.score);  // For debugging (uncomment if needed)
     }
@@ -50,11 +51,11 @@ var sliderValue = document.getElementById("sliderValue");
 
 // Function to update the textbox value when the slider changes
 function updateTextboxValue() {
-  sliderValue.value = slider.value;
+  sliderValue.value = score_max_slider.value;
 }
 
 // Set up an event listener to call the updateTextboxValue function when the slider value changes
-slider.addEventListener("input", updateTextboxValue);
+score_max_slider.addEventListener("input", updateTextboxValue);
 
 // Call the updateTextboxValue function initially to display the initial slider value
 updateTextboxValue();
