@@ -1,25 +1,77 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <title>Ultimate Simulation</title>
 </head>
 <body>
 
-<input type="range" min="1" max="15" value="1" id="score_max_slider">
-<input type="range" min="0" max="1" value="0.5" step="0.01"  id="score_max_slider">
-<input type="text" id="sliderValue">
+<input type="range" min="1" max="15" value="15" id="score_max_slider"> 
+<input type="text" id="score_max_slider_value">
+<br><input type="range" min="0" max="1" value="0.5" step="0.01"  id="a_o_hold_slider">
+<input type="text" id="a_o_hold_slider_value">
+<br><input type="range" min="0" max="1" value="0.5" step="0.01"  id="a_d_hold_slider">
+<input type="text" id="a_d_hold_slider_value">
+<br><input type="range" min="0" max="1" value="0.5" step="0.01"  id="b_o_hold_slider">
+<input type="text" id="b_o_hold_slider_value">
+<br><input type="range" min="0" max="1" value="0.5" step="0.01"  id="b_d_hold_slider">
+<input type="text" id="b_d_hold_slider_value">
+<br><input type="range" min="1" max="6" value="5" step="1"  id="num_sims_slider">
+<input type="text" id="num_sims_slider_value">
+<br><input type="text" id="test">
+<br><input type="submit" id="submit" value="Submit">
+<br><canvas id="myChart" width="400" height="200"></canvas>
 
 <script>
 
-const assumptions = {
-    0: { 0: 0.8, 1: 0.7 },
-    1: { 0: 0.8, 1: 0.7 },
-};
-  
-function sim() {
+var score_max_slider = document.getElementById("score_max_slider");
+var a_o_hold_slider = document.getElementById("a_o_hold_slider");
+var a_d_hold_slider = document.getElementById("a_d_hold_slider");
+var b_o_hold_slider = document.getElementById("b_o_hold_slider");
+var b_d_hold_slider = document.getElementById("b_d_hold_slider");
+var num_sims_slider = document.getElementById("num_sims_slider");
 
+var init_score_max = document.getElementById("score_max_slider_value").value;
+
+const init_assumptions = {
+    0: { 0: a_o_hold_slider.value, 1: a_d_hold_slider.value },
+    1: { 0: b_o_hold_slider.value, 1: b_d_hold_slider.value },
+};
+
+var num_sims_slider = document.getElementById("num_sims_slider_value").value;
+
+function formatScore(arr) {
+  // Ensure the input is an array with two elements
+  if (!Array.isArray(arr) || arr.length !== 2) {
+    throw new Error("Input must be an array with two elements (x and y)");
+  }
+
+  // Extract x and y values
+  const [x, y] = arr;
+
+  // Convert x and y to strings and pad with zeros
+  const paddedX = String(x).padStart(2, "0");
+  const paddedY = String(y).padStart(2, "0");
+
+  // Combine and return the formatted string
+  return '${paddedX}:${paddedY}';
+}
+
+function generateScoresDictionary(maxScore) {
+  const scores = {};
+  for (let i = 0; i < maxScore; i++) {
+    scores[[maxScore, i]] = 0 ;    
+  }
+  for (let i = maxScore - 1; i > 0; i--) {
+    scores[[i, maxScore]] = 0 ;    
+  }
+  return scores;
+}
+
+function sim(assumptions, score_max) {
 
   const state = {
     score: [0, 0],
@@ -27,7 +79,7 @@ function sim() {
     offense: 0,
   };
 
-  while (Math.max(...state.score) < 15) {
+  while (Math.max(...state.score) < score_max) {
     // Turnover
     if (Math.random() > assumptions[state.offense][state.pullReceive ^ state.offense]) {
       // console.log("Turnover Offence:", state.offense);  // For debugging (uncomment if needed)
@@ -40,25 +92,111 @@ function sim() {
       // console.log("Score:", state.score);  // For debugging (uncomment if needed)
     }
   }
-
   return state.score;
 } 
 
-
-// Get references to the slider and textbox
-var slider = document.getElementById("slider");
-var sliderValue = document.getElementById("sliderValue");
-
-// Function to update the textbox value when the slider changes
-function updateTextboxValue() {
-  sliderValue.value = score_max_slider.value;
+function sims(num_sims, assumptions, score_max){
+  scores = generateScoresDictionary(score_max)
+  for (let i = 0; i <= num_sims; i++) {
+    score = sim(assumptions,score_max)
+    scores[score] += 1
+  }
+  return(scores)
 }
 
+function updateTextboxValue2(id) {
+  document.getElementById(id+"_value").value = document.getElementById(id).value ;    
+}
+
+
+function updateTextboxValueLog(id) {
+  document.getElementById(id+"_value").value = Math.pow(10, document.getElementById(id).value );
+}
+
+// ************************* LISTENERS ************************* 
+
 // Set up an event listener to call the updateTextboxValue function when the slider value changes
-score_max_slider.addEventListener("input", updateTextboxValue);
+document.getElementById("score_max_slider").addEventListener("input", function() {
+  updateTextboxValue2("score_max_slider");
+});
+
+
+document.getElementById("a_o_hold_slider").addEventListener("input", function() {
+  updateTextboxValue2("a_o_hold_slider");
+});
+
+document.getElementById("a_d_hold_slider").addEventListener("input", function() {
+  updateTextboxValue2("a_d_hold_slider");
+});
+
+document.getElementById("b_o_hold_slider").addEventListener("input", function() {
+  updateTextboxValue2("b_o_hold_slider");
+});
+
+document.getElementById("b_d_hold_slider").addEventListener("input", function() {
+  updateTextboxValue2("b_d_hold_slider");
+});
+
+document.getElementById("num_sims_slider").addEventListener("input", function() {
+  updateTextboxValueLog("num_sims_slider");
+});
+
+document.getElementById("submit").addEventListener("click", function() {
+
+    init_assumptions[0][0] = document.getElementById("a_o_hold_slider_value").value ; 
+    init_assumptions[0][1] = document.getElementById("a_d_hold_slider_value").value ; 
+    init_assumptions[1][0] = document.getElementById("b_o_hold_slider_value").value ; 
+    init_assumptions[1][1] = document.getElementById("b_d_hold_slider_value").value ; 
+    init_score_max = document.getElementById("score_max_slider_value").value ; 
+    init_num_sims = document.getElementById("num_sims_slider_value").value ; 
+    
+    data = sims(init_num_sims,init_assumptions,init_score_max)
+
+    var wins = 0 
+
+    for (var i = 0; i < init_score_max; i++) {
+      wins += data[[init_score_max,i]];
+    }
+
+    document.getElementById("test").value = (wins / init_num_sims) ; 
+
+    // Extract labels and data values from the data object
+    var labels = Object.keys(data);
+    var values = Object.values(data);
+
+    // Create a new chart instance
+    var ctx = document.getElementById('myChart').getContext('2d');
+
+    let chartStatus = Chart.getChart("myChart"); // <canvas> id
+    if (chartStatus != undefined) {
+        chartStatus.destroy();
+    }
+
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Count',
+                data: values,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {scales: {y: {beginAtZero: true}}}
+    });    
+    
+});
+
 
 // Call the updateTextboxValue function initially to display the initial slider value
-updateTextboxValue();
+updateTextboxValue2("score_max_slider");
+updateTextboxValue2("a_o_hold_slider");
+updateTextboxValue2("a_d_hold_slider");
+updateTextboxValue2("b_o_hold_slider");
+updateTextboxValue2("b_d_hold_slider");
+updateTextboxValueLog("num_sims_slider");
 </script>
 
 </body>
