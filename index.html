@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slider Example</title>
+</head>
+<body>
+
+<input type="range" min="1" max="100" value="1" id="slider">
+<input type="text" id="sliderValue">
+
+<script>
+// Get references to the slider and textbox
+var slider = document.getElementById("slider");
+var sliderValue = document.getElementById("sliderValue");
+
+// Function to update the textbox value when the slider changes
+function updateTextboxValue() {
+  sliderValue.value = slider.value;
+}
+
+// Set up an event listener to call the updateTextboxValue function when the slider value changes
+slider.addEventListener("input", updateTextboxValue);
+
+// Call the updateTextboxValue function initially to display the initial slider value
+updateTextboxValue();
+</script>
+
+</body>
+</html>
