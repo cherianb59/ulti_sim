@@ -218,8 +218,9 @@ function sims(num_sims, assumptions, score_max, score_half){
         "x": sim_results["combined_turnovers"][0] , 
 	    "y": sim_results["combined_turnovers"][1]  
     } ); 
-    
-	//console.log(JSON.stringify(sim_results["turnovers"]));
+
+	
+    //console.log(JSON.stringify(sim_results["turnovers"]));
 	score = sim_results["score"] ;
     scores[score] += 1 ;
 	
@@ -358,9 +359,14 @@ document.getElementById("submit").addEventListener("click", function() {
 	// read data
 	var data = sims_results['combined_turnovers'] ;
 
+    var xs = data.map(function(item) {return item.x;});
+    var ys = data.map(function(item) {return item.y;});
+
+    
+
   // Add X axis
   const x = d3.scaleLinear()
-    .domain([0, 30])
+    .domain([0, xs.reduce((a, b) => Math.max(a, b), -Infinity) + 1 ])
     .range([ margin.left, width - margin.right ]);
   svg.append("g")
     .attr("transform", `translate(0, ${height})`)
@@ -368,21 +374,26 @@ document.getElementById("submit").addEventListener("click", function() {
 
   // Add Y axis
   const y = d3.scaleLinear()
-    .domain([0, 35])
+    .domain([0, ys.reduce((a, b) => Math.max(a, b), -Infinity) + 1])
     .range([ height - margin.bottom, margin.top ]);
   svg.append("g")
     .call(d3.axisLeft(y));
 
-  // Prepare a color palette
-  const color = d3.scaleLinear()
-      .domain([0, 3]) // Points per square pixel.
-      .range(["#212529", "#b36969"])
 
   // compute the density data
   const densityData = d3.contourDensity()
     .x(function(d) { return x(d.x); })
     .y(function(d) { return y(d.y); })
+    .bandwidth(10) 
     (data)
+
+    const maxDensity = Math.max.apply(this, densityData.map(d => d.value));    
+
+  // Prepare a color palette
+  const color = d3.scaleLinear()
+      .domain([0, maxDensity/3]) // Points per square pixel.
+      .range(["#212529", "#b35555"])
+
 
   // show the shape!
   svg.insert("g", "g")
