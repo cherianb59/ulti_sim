@@ -7,8 +7,10 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <title>Ultimate Simulation</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>        
+		<!-- Load d3.js -->
+		<script src="https://d3js.org/d3.v6.js"></script>
+		<title>Ultimate Simulation</title>
     </head>
 <body>
 
@@ -42,7 +44,12 @@
           </div>
         </div>
     </div>
-      
+    <div id="estimate" class="container-fluid">
+		<div class="row" >
+		Estimate turnover likelihood, just enter the score and turnovers for both teams. 
+		
+		</div>
+	</div>
     <div id="turnover" class="container-fluid">       
         <div class="row" data-mdb-range-init>
             <div class="col-sm-2"><label class="form-label" for="score_max_slider">Maximum Score</label></div>
@@ -102,48 +109,16 @@
         <br><input type="text" id="team_a_offence_point_chance">
         <br><input type="text" id="team_b_offence_point_chance">
         <br><input type="submit" id="submit" value="Submit" class="btn btn-default btn-lg btn-primary">
-        <br><canvas id="myChart" width="400" height="200"></canvas>
+        <br><canvas id="scoreChart" width="400" height="200"></canvas>
         <p>The score format is "Team A , Team B".</p>
+		<br>
+		<div id="my_dataviz"></div>
+     
     </div>
 </div>
 
 
-<script>
-    $(document).ready(function(){
-      // Add smooth scrolling to all links in navbar + footer link
-      $(".navbar a, footer a[href='#myPage']").on('click', function(event) {
-        // Make sure this.hash has a value before overriding default behavior
-        if (this.hash !== "") {
-          // Prevent default anchor click behavior
-          event.preventDefault();
-    
-          // Store hash
-          var hash = this.hash;
-    
-          // Using jQuery's animate() method to add smooth page scroll
-          // The optional number (900) specifies the number of milliseconds it takes to scroll to the specified area
-          $('html, body').animate({
-            scrollTop: $(hash).offset().top
-          }, 100, function(){
-       
-            // Add hash (#) to URL when done scrolling (default click behavior)
-            window.location.hash = hash;
-          });
-        } // End if
-      });
-      
-      $(window).scroll(function() {
-        $(".slideanim").each(function(){
-          var pos = $(this).offset().top;
-    
-          var winTop = $(window).scrollTop();
-            if (pos < winTop + 600) {
-              $(this).addClass("slide");
-            }
-        });
-      });
-    })
-</script>
+
 
 <script>
 
@@ -165,29 +140,12 @@ const init_assumptions = {
 
 var num_sims_slider = document.getElementById("num_sims_slider_value").value;
 
-function formatScore(arr) {
-  // Ensure the input is an array with two elements
-  if (!Array.isArray(arr) || arr.length !== 2) {
-    throw new Error("Input must be an array with two elements (x and y)");
-  }
-
-  // Extract x and y values
-  const [x, y] = arr;
-
-  // Convert x and y to strings and pad with zeros
-  const paddedX = String(x).padStart(2, "0");
-  const paddedY = String(y).padStart(2, "0");
-
-  // Combine and return the formatted string
-  return '${paddedX}:${paddedY}';
-}
-
 function generateScoresDictionary(maxScore) {
   const scores = {};
   for (let i = 0; i < maxScore; i++) {
     scores[[maxScore, i]] = 0 ;    
   }
-  for (let i = maxScore - 1; i > 0; i--) {
+  for (let i = maxScore - 1; i >= 0; i--) {
     scores[[i, maxScore]] = 0 ;    
   }
   return scores;
@@ -201,13 +159,15 @@ function sim(assumptions, score_max = 15 , score_half = 8 ) {
     offence: 0,
   };
   var half_not_reached = true ; 
+  var turnovers = {0:{0:0,1:0} , 1:{0:0,1:0} }; 
   
   while (Math.max(...state.score) < score_max) {
-
+	
     // Turnover
     if (Math.random() < assumptions[state.offence][state.pullReceive ^ state.offence]) { 
       // console.log("Turnover Offence:", state.offence);  // For debugging (uncomment if needed)
-      state.offence = 1 - state.offence  ;  
+      turnovers[state.offence][state.pullReceive ^ state.offence] += 1 ; 
+	  state.offence = 1 - state.offence  ; 
     } else {
       // Score
       state.score[state.offence] += 1;
@@ -220,19 +180,53 @@ function sim(assumptions, score_max = 15 , score_half = 8 ) {
       }
       
       state.offence = state.pullReceive;
-      //console.log("Score:", state.score, "State:", JSON.stringify(state) , half_not_reached );  // For debugging (uncomment if needed)
+      //console.log("Score:", state.score, "Turnovers:", JSON.stringify(turnovers) );  // For debugging (uncomment if needed)
     }
   }
-  return state.score;
+  outputs = {"score": state.score , "turnovers": turnovers , "combined_turnovers":[turnovers[0][0]+turnovers[0][1] , turnovers[1][0]+turnovers[1][1]]} ; 
+  return outputs;
 } 
 
-function sims(num_sims, assumptions, score_max, score_half){
-  scores = generateScoresDictionary(score_max)
-  for (let i = 0; i < num_sims; i++) {
-    score = sim(assumptions,score_max, score_half)
-    scores[score] += 1
+function updateTurnovers( sim_results, turnovers, i, j) {
+  const key = sim_results["turnovers"][i][j];
+  if (key in turnovers[i][j]) {
+    turnovers[i][j][key] += 1;
+  } else {
+    turnovers[i][j][key] = 1;
   }
-  return(scores)
+  
+}
+
+
+function sims(num_sims, assumptions, score_max, score_half){
+  //run the sims and store the summarised results 
+  
+  scores = generateScoresDictionary(score_max)
+  turnovers = {0:{0: {},1: {}} , 1:{0: {},1: {} } };
+  combined_turnovers = []
+  
+  for (let i = 0; i < num_sims; i++) {
+    sim_results = sim(assumptions,score_max, score_half) ; 
+	//TODO replace with function 
+	
+	updateTurnovers(sim_results, turnovers, 0, 0) ; 
+	updateTurnovers(sim_results, turnovers, 0, 1) ; 
+	updateTurnovers(sim_results, turnovers, 1, 0) ; 
+	updateTurnovers(sim_results, turnovers, 1, 1) ; 
+	
+	combined_turnovers.push( { 
+        "x": sim_results["combined_turnovers"][0] , 
+	    "y": sim_results["combined_turnovers"][1]  
+    } ); 
+    
+	//console.log(JSON.stringify(sim_results["turnovers"]));
+	score = sim_results["score"] ;
+    scores[score] += 1 ;
+	
+  }
+  //console.log(JSON.stringify(combined_turnovers));  // For debugging (uncomment if needed)
+  outputs = {"scores": scores , "turnovers": turnovers , "combined_turnovers": combined_turnovers} ; 
+  return(outputs)
 }
 
 function updateTextboxValue(id) {
@@ -290,12 +284,14 @@ document.getElementById("submit").addEventListener("click", function() {
     init_score_half = document.getElementById("score_half_slider_value").value ; 
     init_num_sims = document.getElementById("num_sims_slider_value").value ; 
     
-    data = sims(init_num_sims,init_assumptions,init_score_max,init_score_half)
-
+	sims_results = sims(init_num_sims,init_assumptions,init_score_max,init_score_half) ; 
+    sims_scores = sims_results['scores'] ;
+	sims_turnovers = sims_results['turnovers'] ;
+	
     var wins = 0 
     //calculate number of wins
     for (var i = 0; i < init_score_max; i++) {
-      wins += data[[init_score_max,i]];
+      wins += sims_scores[[init_score_max,i]];
     }
 
     document.getElementById("wins").value = (wins / init_num_sims) ; 
@@ -303,19 +299,32 @@ document.getElementById("submit").addEventListener("click", function() {
     document.getElementById("team_a_offence_point_chance").value = calcPointChance(init_assumptions[0][0] , init_assumptions[1][1]) ; 
     document.getElementById("team_b_offence_point_chance").value = calcPointChance(init_assumptions[1][0] , init_assumptions[0][1]) ; 
 
+    var labels = Object.keys(sims_scores);
     // Extract labels and data values from the data object
-    var labels = Object.keys(data);
-    var values = Object.values(data);
+    var values = Object.values(sims_scores);
 
+
+	var chartOptions = {
+            scales: {x:{ticks: {color: 'white' }},
+                     y: {ticks: {color: 'white' },// Font color for y-axis labels} 
+                        beginAtZero: true
+                    }},
+            plugins: {
+                legend: {labels: {color: 'white'}}, // Font color for legend labels
+                tooltip: {
+                    bodyFontColor: 'white', // Font color for tooltip text
+                    titleFontColor: 'white' // Font color for tooltip title
+                }}} ; 
+				 
     // Create a new chart instance
-    var ctx = document.getElementById('myChart').getContext('2d');
+    var ctx = document.getElementById('scoreChart').getContext('2d');
 
-    let chartStatus = Chart.getChart("myChart"); // <canvas> id
+    let chartStatus = Chart.getChart("scoreChart"); // <canvas> id
     if (chartStatus != undefined) {
         chartStatus.destroy();
     }
 
-    var myChart = new Chart(ctx, {
+    var scoreChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
@@ -325,25 +334,67 @@ document.getElementById("submit").addEventListener("click", function() {
                 backgroundColor: 'rgba(54, 162, 235, 0.6)',
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {x:{ticks: {color: 'white' }},
-                     y: {ticks: {color: 'white' },// Font color for y-axis labels} 
-                        beginAtZero: true
-                        }
-                    },
-            plugins: {
-                legend: {labels: {color: 'white'}}, // Font color for legend labels
-                tooltip: {
-                    bodyFontColor: 'white', // Font color for tooltip text
-                    titleFontColor: 'white' // Font color for tooltip title
-                }
-            }
-        }
-    });    
+        }]},
+        options: chartOptions 
+    });
+  
+
+    // set the dimensions and margins of the graph
+    const margin = {top: 10, right: 30, bottom: 30, left: 40},
+        width = 460 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
+
+    
+    d3.select("#my_dataviz").selectAll('svg').remove();
+    // append the svg object to the body of the page
+    const svg = d3.select("#my_dataviz")
+    .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+
+	// read data
+	var data = sims_results['combined_turnovers'] ;
+
+  // Add X axis
+  const x = d3.scaleLinear()
+    .domain([0, 30])
+    .range([ margin.left, width - margin.right ]);
+  svg.append("g")
+    .attr("transform", `translate(0, ${height})`)
+    .call(d3.axisBottom(x));
+
+  // Add Y axis
+  const y = d3.scaleLinear()
+    .domain([0, 35])
+    .range([ height - margin.bottom, margin.top ]);
+  svg.append("g")
+    .call(d3.axisLeft(y));
+
+  // Prepare a color palette
+  const color = d3.scaleLinear()
+      .domain([0, 3]) // Points per square pixel.
+      .range(["#212529", "#b36969"])
+
+  // compute the density data
+  const densityData = d3.contourDensity()
+    .x(function(d) { return x(d.x); })
+    .y(function(d) { return y(d.y); })
+    (data)
+
+  // show the shape!
+  svg.insert("g", "g")
+    .selectAll("path")
+    .data(densityData)
+    .enter().append("path")
+      .attr("d", d3.geoPath())
+      .attr("fill", function(d) { return color(d.value); })
+
     
 });
+
 
 
 // Call the updateTextboxValue function initially to display the initial slider value
@@ -356,6 +407,42 @@ updateTextboxValue("b_d_hold_slider");
 updateTextboxValueLog("num_sims_slider");
 </script>
 
+<script>
+    $(document).ready(function(){
+      // Add smooth scrolling to all links in navbar + footer link
+      $(".navbar a, footer a[href='#myPage']").on('click', function(event) {
+        // Make sure this.hash has a value before overriding default behavior
+        if (this.hash !== "") {
+          // Prevent default anchor click behavior
+          event.preventDefault();
+    
+          // Store hash
+          var hash = this.hash;
+    
+          // Using jQuery's animate() method to add smooth page scroll
+          // The optional number (900) specifies the number of milliseconds it takes to scroll to the specified area
+          $('html, body').animate({
+            scrollTop: $(hash).offset().top
+          }, 100, function(){
+       
+            // Add hash (#) to URL when done scrolling (default click behavior)
+            window.location.hash = hash;
+          });
+        } // End if
+      });
+      
+      $(window).scroll(function() {
+        $(".slideanim").each(function(){
+          var pos = $(this).offset().top;
+    
+          var winTop = $(window).scrollTop();
+            if (pos < winTop + 600) {
+              $(this).addClass("slide");
+            }
+        });
+      });
+    })
+</script>
+
 </body>
 </html>
-
