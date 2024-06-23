@@ -4,9 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Load jquery.js -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <!-- Load bootstrap.css -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Load bootstrap.js -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Load chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Load d3.js -->
   <script src="https://d3js.org/d3.v6.js"></script>
@@ -53,12 +57,13 @@
       <div class="row">
         <div class="col-sm-12">
           <h2>About</h2><br>
-          <h4>This page simulates games of ultimate based on your assumptions.</h4><br>
-          <p>Team A starts on offence.
-            Each team has a fixed chance of turning it over, if they don't turn it over they score.
-            Whenever a team scores they use their defensive line on the next point and the other team uses
+          <h4>This page simulates games of ultimate</h4><br>
+          <p>Team A starts on offence and with their offensive line, team B starts with their defensive line.
+          </p><p> 
+          </p><p> Each team a team has possesion they have a fixed chance of turning it over, if they don't turn it over they score.
+          </p><p> Whenever a team scores they use their defensive line on the next point and the other team uses
             their offensive line.
-            The exception is when half time is reached, in which case Team B starts on offence with their
+          </p><p> The exception is when half time is reached, on the next point Team B starts on offence with their
             offensive line and Team A uses their defensive line.
 
           </p>
@@ -67,26 +72,83 @@
       </div>
     </div>
     <div id="estimate" class="container-fluid">
+      <h2> Turnover Likelihood Estimation </h2><br>
+      
       <div class="row">
         <div class="col"> 
-          Estimate turnover likelihood, enter the score and turnovers for both teams.
+          Estimate how likely your team is to turn over the disc, enter the score and turnovers for both teams.
         </div>
-        <div class="row" >
-          <div class="col-sm-6"> <input type="text" type="number" id="a_score"> </div>
-          <div class="col-sm-6"> <input type="text" type="number" id="b_score"> </div>
+        <br><br>
+      </div>  
+
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <a class="nav-link active" id="simple-tab-0" data-bs-toggle="tab" 
+          href="#simple-tabpanel-0" role="tab" aria-controls="simple-tabpanel-0" aria-selected="true">Simple</a>
+        </li>
+        <li class="nav-item" role="presentation">
+          <a class="nav-link" id="simple-tab-1" data-bs-toggle="tab" 
+          href="#simple-tabpanel-1" role="tab" aria-controls="simple-tabpanel-1" aria-selected="false">Full</a>
+        </li>
+      </ul>
+
+      <div class="tab-content pt-5" id="tab-content">
+        <div class="tab-pane active" id="simple-tabpanel-0" role="tabpanel" aria-labelledby="simple-tab-0">
+          <div class="row" >
+            <div class="col-sm-4"></div><div class="col-sm-1"> A team score </div> <div class="col-sm-1"> <input type="text" type="number" id="a_score"> </div>
+            <div class="col-sm-1"> B team score </div> <div class="col-sm-1"> <input type="text" type="number" id="b_score"> </div><div class="col-sm-4"></div>
+          </div>
+          <br>
+          <div class="row" >
+            <div class="col-sm-4"></div><div class="col-sm-1"> A team turnovers </div> <div class="col-sm-1"> <input type="text" type="number" id="a_turnovers"> </div>
+            <div class="col-sm-1"> B team turnovers </div> <div class="col-sm-1"> <input type="text" type="number" id="b_turnovers"> </div><div class="col-sm-4"></div>
+          </div>
+          <div class="row" >
+            <div class="col"> 
+              <br><input type="submit" id="calc_simple_turnover" value="Calculate" class="btn btn-default btn-lg btn-primary"></div>
+          </div>
+
         </div>
-        <br>
-        <div class="row" >
-          <div class="col-sm-6"> <input type="text" type="number" id="a_turnovers"> </div>
-          <div class="col-sm-6"> <input type="text" type="number" id="b_turnovers"> </div>
-        </div>
-        <div class="row" >
-          <div class="col"> 
-            <br><input type="submit" id="calc_simple_turnover" value="Calculate" class="btn btn-default btn-lg btn-primary"></div>
+        <div class="tab-pane" id="simple-tabpanel-1" role="tabpanel" aria-labelledby="simple-tab-1">
+          <br>
+          <div class="row" >
+            <div class="col-sm-4"></div>
+            <div class="col-sm-1"> A team score </div> 
+            <div class="col-sm-1"> <input type="text" type="number" id="a_score_full"> </div>
+            <div class="col-sm-1"> B team score </div> 
+            <div class="col-sm-1"> <input type="text" type="number" id="b_score_full"> </div>
+            <div class="col-sm-4"></div>
+          </div>
+          <br>
+          <div class="row" >
+            <div class="col-sm-4"></div>
+            <div class="col-sm-1"> A team break chances </div> 
+            <div class="col-sm-1"> <input type="text" type="number" id="a_break_chances"> </div>
+            <div class="col-sm-1"> B team break chances </div> 
+            <div class="col-sm-1"> <input type="text" type="number" id="b_break_chances"> </div>
+            <div class="col-sm-4"></div>
+          </div>
+          <br>
+          <div class="row" >
+            <div class="col-sm-4"></div>
+            <div class="col-sm-1"> A team breaks </div> 
+            <div class="col-sm-1"> <input type="text" type="number" id="a_breaks"> </div>
+            <div class="col-sm-1"> B team breaks </div> 
+            <div class="col-sm-1"> <input type="text" type="number" id="b_breaks"> </div>
+            <div class="col-sm-4"></div>
+          </div>
+          <br>
+          <div class="row" >
+            <div class="col"> 
+              <br><input type="submit" id="calc_full_alt_turnover" value="Calculate" class="btn btn-default btn-lg btn-primary"></div>
+          </div>
         </div>
       </div>
+      
     </div>
+    <br><br>
     <div id="turnover" class="container-fluid">
+      <h2> Simulation </h2><br>
       <div class="row" data-mdb-range-init>
         <div class="col-sm-2"><label class="form-label" for="score_max_slider">Maximum Score</label></div>
         <div class="col-sm-8"><input type="range" class="form-range" min="1" max="15" value="15"
@@ -153,10 +215,10 @@
         <div class="col-sm-2"><input type="number" id="num_sims_slider_value"></div>
       </div>
 
-      <br><input type="text" id="wins">
-      <br><input type="text" id="team_a_offence_point_chance">
-      <br><input type="text" id="team_b_offence_point_chance">
-      <br><input type="submit" id="submit" value="Submit" class="btn btn-default btn-lg btn-primary">
+      <br>Team A win probablility  <div id="wins"></div>
+      <br>Team A offence line scoring probablility  <div id="team_a_offence_point_chance"></div>
+      <br>Team B offence line scoring probablility  <div id="team_b_offence_point_chance"></div>
+      <br><input type="submit" id="submit" value="Simulate" class="btn btn-default btn-lg btn-primary">
       <div class="loader hidden" id = "scoreChartLoader"></div>
       <br><canvas id="scoreChart" width="400" height="200"></canvas>
       <p>The score format is "Team A , Team B".</p>
@@ -188,6 +250,36 @@
     };
 
     var num_sims_slider = document.getElementById("num_sims_slider_value").value;
+
+    function validateScoreTurnover(a_score, b_score, a_turnovers, b_turnovers) {
+      console.log(a_score, b_score, a_turnovers, b_turnovers);
+      score_turnover_diff = (a_score - b_score) - ( b_turnovers - a_turnovers ) ; 
+      return  ( score_turnover_diff => - 1 ) && ( score_turnover_diff <= 1 ) ; 
+    }
+
+    function validateScoreTurnoverFull(a_score, b_score, a_break_chances, b_break_chances, a_breaks, b_breaks) {
+      
+      if ( isNaN(a_score) || isNaN(b_score) || isNaN( a_break_chances) || isNaN( b_break_chances) || isNaN( a_breaks) || isNaN( b_breaks)  ){
+        return false ; 
+      } else if (b_breaks > b_break_chances){
+        return false ;
+      } else if (a_breaks > a_break_chances){
+        return false ;
+      } else {
+        return true ; 
+      }
+    }
+
+    function numberToPercentage(number) {
+      // Ensure the input is a number
+      if (typeof number !== 'number' || isNaN(number)) {
+        throw new Error('Input must be a valid number');
+      }
+
+      // Convert the number to percentage format
+      let percentage = (number * 100).toFixed(2) + '%';
+      return percentage;
+    }
 
     function generateScoresDictionary(maxScore) {
       const scores = {};
@@ -334,21 +426,83 @@
       var a_turnovers = parseInt(document.getElementById("a_turnovers").value, 10);
       var b_turnovers = parseInt(document.getElementById("b_turnovers").value, 10);
 
-      var a_turnover_chance = a_turnovers / ( a_turnovers + a_score ) ; 
-      var b_turnover_chance = b_turnovers / ( b_turnovers + b_score ) ; 
+      var score_check = validateScoreTurnover(a_score, b_score, a_turnovers, b_turnovers) ; 
 
-      document.getElementById("a_o_hold_slider").value = a_turnover_chance;
-      document.getElementById("b_o_hold_slider").value = b_turnover_chance;
-      document.getElementById("a_d_hold_slider").value = a_turnover_chance;
-      document.getElementById("b_d_hold_slider").value = b_turnover_chance;
-
-      updateTextboxValue("a_o_hold_slider");
-      updateTextboxValue("b_o_hold_slider");
-      updateTextboxValue("a_d_hold_slider");
-      updateTextboxValue("b_d_hold_slider");
       
+      if (!score_check)  {
+        document.getElementById('calc_simple_turnover').setCustomValidity("Scores and turnovers don't align");
+        document.getElementById('calc_simple_turnover').reportValidity();  
+      }
+      else{
+        var a_turnover_chance = a_turnovers / ( a_turnovers + a_score ) ; 
+        var b_turnover_chance = b_turnovers / ( b_turnovers + b_score ) ; 
+
+        document.getElementById("a_o_hold_slider").value = a_turnover_chance;
+        document.getElementById("b_o_hold_slider").value = b_turnover_chance;
+        document.getElementById("a_d_hold_slider").value = a_turnover_chance;
+        document.getElementById("b_d_hold_slider").value = b_turnover_chance;
+
+        updateTextboxValue("a_o_hold_slider");
+        updateTextboxValue("b_o_hold_slider");
+        updateTextboxValue("a_d_hold_slider");
+        updateTextboxValue("b_d_hold_slider");
+      }
     })
 
+    document.getElementById("calc_full_alt_turnover").addEventListener("click", function () {
+
+      var a_score = parseInt(document.getElementById("a_score_full").value, 10);
+      var b_score = parseInt(document.getElementById("b_score_full").value, 10);
+
+      var a_break_chances = parseInt(document.getElementById("a_break_chances").value, 10);
+      var b_break_chances = parseInt(document.getElementById("b_break_chances").value, 10);
+
+      var a_breaks = parseInt(document.getElementById("a_breaks").value, 10);
+      var b_breaks = parseInt(document.getElementById("b_breaks").value, 10);
+      
+      var score_check = validateScoreTurnoverFull(a_score, b_score, a_break_chances, b_break_chances, a_breaks, b_breaks) ; 
+
+      if (!score_check)  {
+        document.getElementById('calc_full_alt_turnover').setCustomValidity("Scores or breaks and break chances don't align");
+        document.getElementById('calc_full_alt_turnover').reportValidity();  
+      }
+      else{
+
+        var a_d_turnovers = a_break_chances - a_breaks ; 
+        var b_d_turnovers = b_break_chances - b_breaks ; 
+        
+        var a_holds = a_score - a_breaks; 
+        var b_holds = b_score - b_breaks; 
+
+        var a_o_turnovers = b_break_chances; 
+        var b_o_turnovers = a_break_chances; 
+
+        var score_check_simple = validateScoreTurnover(a_score, b_score, a_d_turnovers + a_o_turnovers, b_d_turnovers + b_o_turnovers) ; 
+      
+        if (!score_check_simple)  {
+          document.getElementById('calc_full_alt_turnover').setCustomValidity("Scores and turnovers don't align");
+          document.getElementById('calc_full_alt_turnover').reportValidity();  
+        }
+        else {
+          var a_o_turnover_chance = a_o_turnovers / (a_o_turnovers + a_holds ) ; 
+          var b_o_turnover_chance = b_o_turnovers / (b_o_turnovers + b_holds ) ; 
+          var a_d_turnover_chance = a_d_turnovers / (a_d_turnovers + a_breaks ) ; 
+          var b_d_turnover_chance = b_d_turnovers / (b_d_turnovers + b_breaks ) ; 
+
+          document.getElementById("a_o_hold_slider").value = a_o_turnover_chance;
+          document.getElementById("b_o_hold_slider").value = b_o_turnover_chance;
+          document.getElementById("a_d_hold_slider").value = a_d_turnover_chance;
+          document.getElementById("b_d_hold_slider").value = b_d_turnover_chance;
+
+          updateTextboxValue("a_o_hold_slider");
+          updateTextboxValue("b_o_hold_slider");
+          updateTextboxValue("a_d_hold_slider");
+          updateTextboxValue("b_d_hold_slider");
+        }
+      }
+
+    })
+/*
     document.getElementById("calc_full_turnover").addEventListener("click", function () {
 
       var a_score = parseInt(document.getElementById("a_score").value, 10);
@@ -381,44 +535,7 @@
       updateTextboxValue("b_d_hold_slider");
 
     })
-
-    document.getElementById("calc_full_alt_turnover").addEventListener("click", function () {
-
-      var a_score = parseInt(document.getElementById("a_score").value, 10);
-      var b_score = parseInt(document.getElementById("b_score").value, 10);
-
-      var a_break_chances = parseInt(document.getElementById("a_break_chances").value, 10);
-      var b_break_chances = parseInt(document.getElementById("b_break_chances").value, 10);
-      var a_breaks = parseInt(document.getElementById("a_breaks").value, 10);
-      var b_breaks = parseInt(document.getElementById("b_breaks").value, 10);
-      
-      var a_d_turnovers = a_break_chances - a_breaks ; 
-      var b_d_turnovers = b_break_chances - b_breaks ; 
-      
-      var a_holds = a_score - a_breaks; 
-      var b_holds = b_score - b_breaks; 
-
-      var a_o_turnovers = b_break_chances; 
-      var b_d_turnovers = a_break_chances; 
-
-
-      var a_o_turnover_chance = a_o_turnovers / (a_o_turnovers + a_holds ) ; 
-      var b_o_turnover_chance = b_o_turnovers / (b_o_turnovers + b_holds ) ; 
-      var a_d_turnover_chance = a_d_turnovers / (a_d_turnovers + a_breaks ) ; 
-      var b_d_turnover_chance = b_d_turnovers / (b_d_turnovers + b_breaks ) ; 
-
-      document.getElementById("a_o_hold_slider").value = a_o_turnover_chance;
-      document.getElementById("b_o_hold_slider").value = b_o_turnover_chance;
-      document.getElementById("a_d_hold_slider").value = a_d_turnover_chance;
-      document.getElementById("b_d_hold_slider").value = b_d_turnover_chance;
-
-      updateTextboxValue("a_o_hold_slider");
-      updateTextboxValue("b_o_hold_slider");
-      updateTextboxValue("a_d_hold_slider");
-      updateTextboxValue("b_d_hold_slider");
-
-    })
-
+*/
 
     document.getElementById("submit").addEventListener("click", function () {
 
@@ -446,10 +563,9 @@
         wins += sims_scores[[init_score_max, i]];
       }
 
-      document.getElementById("wins").value = (wins / init_num_sims);
-
-      document.getElementById("team_a_offence_point_chance").value = calcPointChance(init_assumptions[0][0], init_assumptions[1][1]);
-      document.getElementById("team_b_offence_point_chance").value = calcPointChance(init_assumptions[1][0], init_assumptions[0][1]);
+      document.getElementById("wins").innerHTML = numberToPercentage(wins / init_num_sims);
+      document.getElementById("team_a_offence_point_chance").innerHTML = numberToPercentage(calcPointChance(init_assumptions[0][0], init_assumptions[1][1]));
+      document.getElementById("team_b_offence_point_chance").innerHTML = numberToPercentage(calcPointChance(init_assumptions[1][0], init_assumptions[0][1]));
 
       var labels = Object.keys(sims_scores);
       // Extract labels and data values from the data object
