@@ -14,6 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Load d3.js -->
   <script src="https://d3js.org/d3.v6.js"></script>
+  
   <style>
     .hidden { display: none ;}
 
@@ -36,18 +37,13 @@
 </head>
 
 <body>
-
-
-
   <nav class="navbar navbar-expand-sm fixed-top bg-dark">
     <div class="container-fluid">
-
       <ul class="navbar-nav">
         <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
         <li class="nav-item"><a href="#estimate" class="nav-link">Turnover Estimation</a></li>
         <li class="nav-item"><a href="#turnover" class="nav-link">Turnover Analysis</a></li>
       </ul>
-
     </div>
   </nav>
 
@@ -75,7 +71,7 @@
       <h2> Turnover Likelihood Estimation </h2><br>
       
       <div class="row">
-        <div class="col"> 
+        <div class="col-sm-12"> 
           Estimate how likely your team is to turn over the disc, enter the score and turnovers for both teams.
         </div>
         <br><br>
@@ -95,16 +91,20 @@
       <div class="tab-content pt-5" id="tab-content">
         <div class="tab-pane active" id="simple-tabpanel-0" role="tabpanel" aria-labelledby="simple-tab-0">
           <div class="row" >
-            <div class="col-sm-4"></div><div class="col-sm-1"> A team score </div> <div class="col-sm-1"> <input type="text" type="number" id="a_score"> </div>
-            <div class="col-sm-1"> B team score </div> <div class="col-sm-1"> <input type="text" type="number" id="b_score"> </div><div class="col-sm-4"></div>
+            <div class="col-sm-4"></div>
+            <div class="col-sm-1"> <span class="col-1-paragraph">A team score </span></div>  <input class="col-sm-1" type="text" type="number" id="a_score"> 
+            <div class="col-sm-1"> <span class="col-1-paragraph">B team score </span></div> <input class="col-sm-1" type="text" type="number" id="b_score"> 
+            <div class="col-sm-4"></div>
           </div>
           <br>
           <div class="row" >
-            <div class="col-sm-4"></div><div class="col-sm-1"> A team turnovers </div> <div class="col-sm-1"> <input type="text" type="number" id="a_turnovers"> </div>
-            <div class="col-sm-1"> B team turnovers </div> <div class="col-sm-1"> <input type="text" type="number" id="b_turnovers"> </div><div class="col-sm-4"></div>
+            <div class="col-sm-4"></div>
+            <div class="col-sm-1"> A team turnovers </div> <input class="col-sm-1" type="text" type="number" id="a_turnovers"> 
+            <div class="col-sm-1"> B team turnovers </div> <input class="col-sm-1" type="text" type="number" id="b_turnovers"> 
+            <div class="col-sm-4"></div>
           </div>
           <div class="row" >
-            <div class="col"> 
+            <div class="col-sm-12"> 
               <br><input type="submit" id="calc_simple_turnover" value="Calculate" class="btn btn-default btn-lg btn-primary"></div>
           </div>
 
@@ -114,32 +114,32 @@
           <div class="row" >
             <div class="col-sm-4"></div>
             <div class="col-sm-1"> A team score </div> 
-            <div class="col-sm-1"> <input type="text" type="number" id="a_score_full"> </div>
+            <input class="col-sm-1" type="text" type="number" id="a_score_full">
             <div class="col-sm-1"> B team score </div> 
-            <div class="col-sm-1"> <input type="text" type="number" id="b_score_full"> </div>
+            <input class="col-sm-1" type="text" type="number" id="b_score_full">
             <div class="col-sm-4"></div>
           </div>
           <br>
           <div class="row" >
             <div class="col-sm-4"></div>
             <div class="col-sm-1"> A team break chances </div> 
-            <div class="col-sm-1"> <input type="text" type="number" id="a_break_chances"> </div>
+            <input class="col-sm-1" type="text" type="number" id="a_break_chances">
             <div class="col-sm-1"> B team break chances </div> 
-            <div class="col-sm-1"> <input type="text" type="number" id="b_break_chances"> </div>
+            <input class="col-sm-1" type="text" type="number" id="b_break_chances">
             <div class="col-sm-4"></div>
           </div>
           <br>
           <div class="row" >
             <div class="col-sm-4"></div>
             <div class="col-sm-1"> A team breaks </div> 
-            <div class="col-sm-1"> <input type="text" type="number" id="a_breaks"> </div>
+            <input type="text" class="col-sm-1" type="number" id="a_breaks">
             <div class="col-sm-1"> B team breaks </div> 
-            <div class="col-sm-1"> <input type="text" type="number" id="b_breaks"> </div>
+            <input type="text" class="col-sm-1" type="number" id="b_breaks">
             <div class="col-sm-4"></div>
           </div>
           <br>
           <div class="row" >
-            <div class="col"> 
+            <div class="col-sm-12"> 
               <br><input type="submit" id="calc_full_alt_turnover" value="Calculate" class="btn btn-default btn-lg btn-primary"></div>
           </div>
         </div>
@@ -170,7 +170,7 @@
       <div class="row" data-mdb-range-init>
         <div class="col-sm-2"><label class="form-label" for="a_o_hold_slider"> Team A Offence Line Turnover
             Chance </label></div>
-        <div class="col-sm-8"><input type="range" class="form-range" min="0" max="0.99" value="0.5" step="0.01"
+        <div class="col-sm-8"><input type="range" class="form-range" min="0" max="0.99" value="0.1" step="0.01"
             id="a_o_hold_slider"></div>
         <div class="col-sm-2"><input type="number" id="a_o_hold_slider_value"></div>
       </div>
@@ -180,7 +180,7 @@
       <div class="row" data-mdb-range-init>
         <div class="col-sm-2"><label class="form-label" for="a_d_hold_slider">Team A Defence Line Turnover
             Chance</label></div>
-        <div class="col-sm-8"><input type="range" class="form-range" min="0" max="0.99" value="0.5" step="0.01"
+        <div class="col-sm-8"><input type="range" class="form-range" min="0" max="0.99" value="0.15" step="0.01"
             id="a_d_hold_slider"></div>
         <div class="col-sm-2"><input type="number" id="a_d_hold_slider_value"></div>
       </div>
@@ -190,7 +190,7 @@
       <div class="row" data-mdb-range-init>
         <div class="col-sm-2"><label class="form-label" for="b_o_hold_slider">Team B Offence Line Turnover
             Chance</label></div>
-        <div class="col-sm-8"><input type="range" class="form-range" min="0" max="0.99" value="0.5" step="0.01"
+        <div class="col-sm-8"><input type="range" class="form-range" min="0" max="0.99" value="0.1" step="0.01"
             id="b_o_hold_slider"></div>
         <div class="col-sm-2"><input type="number" id="b_o_hold_slider_value"></div>
       </div>
@@ -200,7 +200,7 @@
       <div class="row" data-mdb-range-init>
         <div class="col-sm-2"><label class="form-label" for="b_d_hold_slider">Team B Defence Line Turnover
             Chance</label></div>
-        <div class="col-sm-8"><input type="range" class="form-range" min="0" max="0.99" value="0.5" step="0.01"
+        <div class="col-sm-8"><input type="range" class="form-range" min="0" max="0.99" value="0.15" step="0.01"
             id="b_d_hold_slider"></div>
         <div class="col-sm-2"><input type="number" id="b_d_hold_slider_value"></div>
       </div>
@@ -214,17 +214,20 @@
             id="num_sims_slider"></div>
         <div class="col-sm-2"><input type="number" id="num_sims_slider_value"></div>
       </div>
+      <input type="submit" id="submit" value="Simulate" class="btn btn-default btn-lg btn-primary">
+        
+      <div class="loader hidden" id = "scoreChartLoader">   </div>
 
-      <br>Team A win probablility  <div id="wins"></div>
-      <br>Team A offence line scoring probablility  <div id="team_a_offence_point_chance"></div>
-      <br>Team B offence line scoring probablility  <div id="team_b_offence_point_chance"></div>
-      <br><input type="submit" id="submit" value="Simulate" class="btn btn-default btn-lg btn-primary">
-      <div class="loader hidden" id = "scoreChartLoader"></div>
-      <br><canvas id="scoreChart" width="400" height="200"></canvas>
-      <p>The score format is "Team A , Team B".</p>
-      <br>
-      <div id="my_dataviz"></div>
-
+      <div class="hidden" id = "simResultsContainer">
+        <br>Team A win probablility  <div id="wins"></div>
+        <br>Team A offence line scoring probablility  <div id="team_a_offence_point_chance"></div>
+        <br>Team B offence line scoring probablility  <div id="team_b_offence_point_chance"></div>
+        <br>
+        <br><canvas id="scoreChart" width="400" height="200"></canvas>
+        <p>The score format is "Team A , Team B".</p>
+        <br>
+        <div id="d3_heatmap"></div>
+    </div>
     </div>
   </div>
 
@@ -538,7 +541,8 @@
 */
 
     document.getElementById("submit").addEventListener("click", function () {
-
+      document.getElementById('simResultsContainer').classList.remove('hidden');
+  
       document.getElementById('scoreChartLoader').classList.remove('hidden');
 
       init_assumptions[0][0] = parseFloat(document.getElementById("a_o_hold_slider_value").value);
@@ -619,23 +623,30 @@
         height = 400 - margin.top - margin.bottom;
 
 
-      d3.select("#my_dataviz").selectAll('svg').remove();
+      d3.select("#d3_heatmap").selectAll('svg').remove();
       // append the svg object to the body of the page
-      const svg = d3.select("#my_dataviz")
+      const svg = d3.select("#d3_heatmap")
         .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("viewBox", '-100 0 600 1200')
+        //.attr("width", width + margin.left + margin.right)
+        //.attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
+        svg.append("text")
+        .attr("x", (width / 2))             
+        .attr("y",  (margin.top ))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px")
+        .style("fill", "white") 
+        .style("text-decoration", "underline")  
+        .text("Turnover Distribution");
 
       // read data
       var data = sims_results['combined_turnovers'];
-
+                                                                                        
       var xs = data.map(function (item) { return item.x; }); /// convert list of dicts to list 
       var ys = data.map(function (item) { return item.y; });
-
-
 
       // Add X axis
       const x = d3.scaleLinear()
@@ -645,13 +656,31 @@
         .attr("transform", `translate(0, ${height})`)
         .call(d3.axisBottom(x));
 
+      var gX = svg.append("g")
+        .attr('class', 'axis')
+        .attr("transform","translate(270,400)")
+        .call(x)
+        .append("text")
+        .attr("fill", "white")
+        .attr("text-anchor", "end")
+        .text("Team A turnovers");
+          
       // Add Y axis
       const y = d3.scaleLinear()
         .domain([0, ys.reduce((a, b) => Math.max(a, b), -Infinity) + 1])
         .range([height - margin.bottom, margin.top]);
       svg.append("g")
         .call(d3.axisLeft(y));
-
+      
+      var gY = svg.append("g")
+        .attr('class', 'axis')
+        .attr("transform","translate(-30,100)")
+        .call(y)
+        .append("text")
+        .attr("fill", "white")
+        .attr("text-anchor", "end")
+        .attr("transform", "rotate(-90)")
+        .text("Team B turnovers");
 
       // compute the density data
       const densityData = d3.contourDensity()
